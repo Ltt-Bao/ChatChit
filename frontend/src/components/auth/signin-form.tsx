@@ -6,6 +6,8 @@ import { Label } from "../ui/label"
 import {z} from 'zod'
 import {useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
+import { useAuthStore } from "@/stores/useAuthStore"
+import { useNavigate } from "react-router"
 
 const signInSchema = z.object({
   username: z.string().min(3, "Tên đăng nhập phải có ít nhất 3 kí tự"),
@@ -18,11 +20,17 @@ export function SigninForm ({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+
+    const {signIn} = useAuthStore();
+    const navigate = useNavigate();
     const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<signInFormValues>({
         resolver: zodResolver(signInSchema)
       });
     const onSubmit = async (data: signInFormValues) => {
         //gọi backend để đăng kí
+        const {username, password} = data;
+        await signIn(username, password);
+        navigate("/")
     }
     return (
     <div className={cn("flex flex-col gap-6 max-h-xl mx-auto", className)} {...props}>

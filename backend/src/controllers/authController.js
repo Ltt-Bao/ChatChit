@@ -9,9 +9,9 @@ const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 *1000 // 14 ngày
 
 export const signUp = async (req, res) => {
     try {
-        const {username, password, email, firstName, lastName} = req.body;
+        const {username, password, email, firstname, lastname} = req.body;
         //kiểm tra tồn tại
-        if(!username || !password || !email || !firstName || !lastName) {
+        if(!username || !password || !email || !firstname || !lastname) {
             return res.status(400).json({message: "Không thể thiếu username, password, email, firstName hoặc lastName"});
         }
         // kiểm tra username đã tồn tại chưa
@@ -29,7 +29,7 @@ export const signUp = async (req, res) => {
             username,
             hashedPassword,
             email,
-            displayName: `${firstName} ${lastName}`
+            displayName: `${firstname} ${lastname}`
         })
 
         // return
@@ -90,7 +90,7 @@ export const signIn = async (req, res) => {
         return res.status(200).json({message: `User ${user.displayName} đã logged in`, accessToken})
     } catch (error) {
         console.error("Lỗi khi gọi signin", error);
-        return req.status(500).json({message: "Lỗi hệ thống"});
+        return res.status(500).json({message: "Lỗi hệ thống"});
     }
 }
 
@@ -104,7 +104,7 @@ export const signOut = async (req, res) => {
             await Session.deleteOne({refreshToken : token});
             //xóa cookie
             res.clearCookie("refreshToken");
-            return res.status(204);
+            return res.sendStatus(204);
         }
         
     } catch (error) {

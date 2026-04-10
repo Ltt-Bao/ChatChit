@@ -4,7 +4,7 @@ import User from '../models/User.js';
 import crypto from 'crypto';
 import Session from '../models/Session.js';
 
-const ACCESS_TOKEN_TTL = '30m'; // dưới 15m
+const ACCESS_TOKEN_TTL = '5s'; // dưới 15m
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 *1000 // 14 ngày
 
 export const signUp = async (req, res) => {
@@ -64,7 +64,7 @@ export const signIn = async (req, res) => {
             return res.status(401).json({message: "username password nhập không chính xác"});
         }
         // nếu khớp tạo access token với JWT
-        const accessToken = jwt.sign({userID: user._id}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: ACCESS_TOKEN_TTL})
+        const accessToken = jwt.sign({userId: user._id}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: ACCESS_TOKEN_TTL})
 
 
         // tạo refresh token
@@ -72,7 +72,7 @@ export const signIn = async (req, res) => {
 
         // tạo session mới để lưu refresh token
         await Session.create({
-            userID: user._id,
+            userId: user._id,
             refreshToken,
             expireAt: new Date(Date.now() + REFRESH_TOKEN_TTL),
         })
@@ -110,5 +110,38 @@ export const signOut = async (req, res) => {
     } catch (error) {
         console.error("Lỗi khi đăng xuất", error)
         return res.status(500).json({message: "Lỗi hệ thống"})
+    }
+}
+
+// tạo accessToken mới từ refreshToken
+export const refreshToken = async (req, res) => {
+    try {
+        //lấy rf token từ cookie
+        const token = req.cookies?.refreshToken;
+        if(!token){
+            return res.status(401).json({message: "Token không tồn tại"})
+        }
+
+        //so sánh với rf token trong db
+        const session = await Session.findOne({refreshToken: token})
+        if(!session){
+            return res.status(403).json({message: "Token không hợp lệ hoặc đã hết hạn"})
+        }
+
+        //kiểm tra hết hạn chưa
+        if(session.expireAt < new Date()){
+            return res.status(403).json({message: "Token đã hết hạn"})
+        }
+
+        // tạo access token mới
+        const accessToken = jwt.sign({
+            userId: session.userId
+        }, process.env.ACCESS_TOKEN_SECRET, {expiresIn: ACCESS_TOKEN_TTL})
+
+        //return
+        return res.status(200).json({accessToken})
+    } catch (error) {
+        console.error("Lỗi khi gọi refreshToken", error);
+        return res.status(500).json({message: "Lỗi hệ thống"});
     }
 }

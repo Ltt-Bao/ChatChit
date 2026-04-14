@@ -5,7 +5,7 @@ const participantSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        require: true
+        required: true
     },
     joinAt: {
         type: Date,
@@ -65,10 +65,10 @@ const conversationSchema = new mongoose.Schema({
     lastMessageAt: {
         type: Date,
     },
-    seenBy: {
+    seenBy: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-    },
+    }],
     lastMessage: {
         type: lastMessageSchema,
         default: null,
@@ -84,7 +84,7 @@ const conversationSchema = new mongoose.Schema({
 })
 
 conversationSchema.index({
-    "participant.userId": 1, lastMessage: -1,
+    "participants.userId": 1, lastMessage: -1,
 });
 
 const Conversation = mongoose.model("Conversation", conversationSchema);

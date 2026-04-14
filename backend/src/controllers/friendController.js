@@ -20,7 +20,7 @@ export const sendFriendRequest = async (req, res) => {
         }
 
         let userA = from.toString();
-        let userB = from.toString();
+        let userB = to.toString();
 
         if(userA > userB){
             [userA, userB] = [userB, userA]
@@ -59,7 +59,35 @@ export const sendFriendRequest = async (req, res) => {
 
 export const acceptFriendRequest = async (req, res) => {
     try {
-        
+        const {requestId} = req.params;
+        const userId = req.user._id;
+
+        const request = await FriendRequest.findById(requestId);
+
+        if(!request){
+            return res.status(404).json({message: "Không tìm thấy lời mời kết bạn"});
+        }
+
+        if(request.to.toString() !== userId.toString()){
+            return res.status(403).json({message: "Bạn không có quyền chấp nhận lời mời kết bạn này"});
+        }
+
+        const friend = await Friend.create({
+            userA: request.from,
+            userB: request.to
+        });
+
+        await FriendRequest.findByIdAndDelete(requestId);
+
+        const from = await User.findById(request.from).select("id displayName avatarUrl").lean();
+
+        return res.status(200).json({message: "Chấp nhận lời mời kết bạn thành công",
+            newFriend: {
+                _id: from?._id,
+                displayName: from?.displayName,
+                avatarUrl: from?.avatarUrl
+            }
+        })
     } catch (error) {
         console.error("Lỗi khi chấp nhận lời mời kết bạn", error);
         return res.status(500).json({message: "Lỗi hệ thống"});
@@ -68,7 +96,22 @@ export const acceptFriendRequest = async (req, res) => {
 
 export const declineFriendRequest = async (req, res) => {
     try {
-        
+        const {requestId} = req.params;
+        const userId = req.user._id
+
+        const request = await FriendRequest.findById(requestId);
+
+        if(!request){
+            return res.status(404).json({message: "Không tìm thấy lời mời kết bạn"});
+        }
+
+        if(request.to.toString() !== userId.toString()){
+            return res.status(403).json({message: "Bạn không có quyền từ chối lời mời này"});
+        }
+
+        await FriendRequest.findByIdAndDelete(requestId);
+
+        return res.sendStatus(204);
     } catch (error) {
         console.error("Lỗi khi từ chối lời mời kết bạn", error);
         return res.status(500).json({message: "Lỗi hệ thống"});
@@ -77,7 +120,29 @@ export const declineFriendRequest = async (req, res) => {
 
 export const getAllFriend = async (req, res) => {
     try {
+        const userId = req.user._id;
+        const friendShip = await Friend.find({
+            $or: [
+                {
+                    userA: userId,
+                },
+                {
+                    userB: userId,
+                }
+            ],
+        })
         
+        .populate("userA", "_id displayName avatarUrl")
+        .populate("userB", "_id displayName avatarUrl")
+        .lean();
+
+        if(!friendShip){
+            return res.status(200).json({friends: []});
+        }
+
+        const friends = friendShip.map((f) => f.userA._id.toString() === userId.toString() ? f.userB : f.userA);
+
+        return res.status(200).json({friends});
     } catch (error) {
         console.error("Lỗi khi lấy danh sách bạn bè", error);
         return res.status(500).json({message: "Lỗi hệ thống"});
@@ -86,7 +151,16 @@ export const getAllFriend = async (req, res) => {
 
 export const getAllFriendRequest = async (req, res) => {
     try {
-        
+        const userId = req.user._id;
+
+        const populateField = "_id username displayName avatarUrl";
+
+        const [sent, recieved] = await Promise.all([
+            FriendRequest.find({from: userId}).populate("to", populateField),
+            FriendRequest.find({to: userId}).populate("from", populateField)
+        ])
+
+        res.status(200).json({sent, recieved});
     } catch (error) {
         console.error("Lỗi khi lấy danh sách lời mời kết bạn", error);
         return res.status(500).json({message: "Lỗi hệ thống"});

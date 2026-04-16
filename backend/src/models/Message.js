@@ -4,13 +4,13 @@ const messageSchema = new mongoose.Schema({
     conversationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Conversation",
-        require: true,
+        required: true,
         index: true,
     },
     senderId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        require: true,
+        required: true,
     },
     content: {
         type: String,
@@ -25,7 +25,7 @@ const messageSchema = new mongoose.Schema({
 }
 );
 
-messageSchema.index({conversationId: 1, createedAt: -1});
+messageSchema.index({conversationId: 1, createdAt: -1});
 
 const Message = mongoose.model("Message", messageSchema);
 

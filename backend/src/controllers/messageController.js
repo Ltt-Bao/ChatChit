@@ -47,4 +47,26 @@ export const sendDirectMessage = async (req, res) => {
     }
 }
 
-export const sendGroupMessage = async (req, res) => {}
+export const sendGroupMessage = async (req, res) => {
+    try {
+        const {conversationId, content} = req.body;
+        const senderId = req.user._id;
+        const conversation = req.conversation;
+
+        if(!content){
+            return res.status(404).json({message: "Thiếu nội dung tin nhắn"});
+        }
+
+        const message = await Message.create({
+            conversationId,
+            senderId,
+            content,
+        });
+        upDateConversationAfterMessage(conversation, message, senderId);
+        await conversation.save();
+        return res.status(201).json({message})
+    } catch (error) {
+        console.error("Lỗi khi gửi tin nhắn nhóm", error);
+        return res.status(500).json({message: "Lỗi hệ thống"})
+    }
+}

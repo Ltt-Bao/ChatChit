@@ -10,11 +10,11 @@ import messageRoute from './routes/messageRoute.js';
 import conversationRoute from './routes/conversationRoute.js';
 import { protectedRoute } from './middlewares/authMiddleWare.js';
 import cors from 'cors';
+import {app, server} from "./socket/index.js"
 
 dotenv.config();
 
 dns.setServers(['8.8.8.8', '8.8.4.4']);
-const app = express();
 const PORT = process.env.PORT || 5001;
 
 //middleware
@@ -34,7 +34,7 @@ app.use('/api/message', messageRoute);
 app.use('/api/conversations', conversationRoute);
 
 connectDB().then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     })
 });

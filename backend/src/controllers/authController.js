@@ -106,6 +106,7 @@ export const signOut = async (req, res) => {
             res.clearCookie("refreshToken");
             return res.sendStatus(204);
         }
+        return res.sendStatus(204);
         
     } catch (error) {
         console.error("Lỗi khi đăng xuất", error)

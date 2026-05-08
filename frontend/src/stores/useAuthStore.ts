@@ -2,8 +2,11 @@ import {create} from 'zustand'
 import {toast} from 'sonner'
 import { authService } from '@/services/authService'
 import type { authState } from '@/type/store'
+import { persist } from 'zustand/middleware'
+import { useChatStore } from './useChatStore'
 
-export const useAuthStore = create<authState>((set, get) => ({
+export const useAuthStore = create<authState>()(
+    persist((set, get) => ({
     accessToken: null,
     user: null,
     loading: false,
@@ -13,7 +16,9 @@ export const useAuthStore = create<authState>((set, get) => ({
     },
 
     clearState: () => {
-        set({accessToken: null, user: null, loading: false});
+        set({accessToken: null, user: null,loading: false});
+        localStorage.clear();
+        useChatStore.getState().reset();
     },
 
     signUp: async (username, password, email, firstname, lastname) => {
@@ -33,11 +38,15 @@ export const useAuthStore = create<authState>((set, get) => ({
     signIn: async (username, password) => {
         try {
             set({loading:true})
-
+            
+            localStorage.clear();
+            useChatStore.getState().reset();
             //gọi api
             const {accessToken} = await authService.signIn(username, password);
             get().setAccessToken(accessToken);
             await get().fetchMe();
+            useChatStore.getState().fetchConversations();
+
             toast.success("Chào mừng ní quay lại với ChatChit nhaa")
         } catch (error) {
             console.error(error);
@@ -90,4 +99,8 @@ export const useAuthStore = create<authState>((set, get) => ({
             set({loading: false})
         }
     }
-}))
+}),{
+    name: "auth-storage",
+    partialize: (state) => ({user: state.user}), //chi persist user
+})
+)

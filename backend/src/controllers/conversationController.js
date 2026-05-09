@@ -143,3 +143,50 @@ export const getUserConversationsForSocketIo = async (userId) => {
         return [];
     }
 }
+
+export const MarkAsSeen = async (req, res) => {
+    try {
+        const {conversationId} = req.params;
+        const userId = req.user._id.toString();
+        const conversation = await Conversation.findById(conversationId);
+
+        if(!conversation){
+            return res.status(404).json({message: "Cuộc trò chuyện không tồn tại"});
+        }
+
+        const last = conversation.lastMessage;
+
+        if(!last){
+            return res.status(200).json({message: "Không có tin nhắn nào để đánh dấu đã xem"});
+        }
+
+        if(last.senderId.toString() === userId){
+            return res.status(200).json({message: "Bạn không cần đánh dấu đã xem cho tin nhắn của mình"});
+        }
+
+        const updated = await Conversation.findByIdAndUpdate(conversationId, {
+            $addToSet: {seenBy: userId},
+            $set: {[`unreadCounts.${userId}`]: 0},
+        }, {new: true});
+
+        io.to(conversationId).emit("read_message", {
+            conversation: updated,
+            lastMessage: {
+                _id: updated?.lastMessage._id,
+                content: updated?.lastMessage.content,
+                createdAt: updated?.lastMessage.createdAt,
+                senderId: {
+                    _id: updated?.lastMessage.senderId._id,
+                }
+            }
+        });
+        return res.status(200).json({
+            message: "Đã đánh dấu tin nhắn đã đọc",
+            seenBy: updated?.seenBy || [],
+            myUnreadCount: updated?.unreadCounts[userId] || 0,
+        });
+    } catch (error) {
+        console.error("Lỗi khi đánh dấu tin nhắn đã đọc", error);
+        return res.status(500).json({message: "Lỗi hệ thống"});
+    }
+}

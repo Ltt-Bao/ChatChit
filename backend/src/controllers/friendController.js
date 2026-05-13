@@ -11,7 +11,7 @@ export const sendFriendRequest = async (req, res) => {
 
         if(from === to){
             return res.status(500).json({message: "Không thể gửi lời mời kết bạn cho chính mình"});
-        }
+        }s
 
         const UserExist = await User.exists({_id: to});
 

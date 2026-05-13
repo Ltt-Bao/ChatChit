@@ -35,7 +35,7 @@ export interface ChatState {
     {
       items: Message[];
       hasMore: boolean; //infinite-scroll
-      nextCursor: string ; //phan trang\
+      nextCursor: string | null; //phan trang
     }
   >;
   activeConversationId: string | null;
@@ -58,9 +58,10 @@ export interface ChatState {
   ) => Promise<void>;
   // add message
   addMessage: (message: Message) => Promise<void>;
-  updateConversation: (conversations: Conversation) => void;
-
   //update convo
+  updateConversation: (conversation: unknown) => void;
+
+  markAsSeen: () => Promise<void>;
   
 }
 

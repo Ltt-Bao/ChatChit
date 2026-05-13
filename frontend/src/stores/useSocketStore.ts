@@ -26,9 +26,9 @@ export const useSocketStore = create<SocketState>((set, get) => ({
             console.log("Đã kết nối với socket")
         });
         // online users
-        socket.on("onlineUsers", (userIds) => {
+        socket.on("online-users", (userIds) => {
             set({onlineUsers: userIds })
-        })
+        });
         //new message
         socket.on("new-message", ({message, conversation, unreadCounts}) => {
             useChatStore.getState().addMessage(message);

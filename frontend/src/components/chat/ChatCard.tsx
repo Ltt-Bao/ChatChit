@@ -10,7 +10,7 @@ interface ChatCardProps {
   isActive: boolean;
   onSelect: (id: string) => void;
   unreadCount?: number;
-  leftSelect: React.ReactNode;
+  leftSection: React.ReactNode;
   subtitle: React.ReactNode;
 }
 const ChatCard = ({
@@ -20,7 +20,7 @@ const ChatCard = ({
   isActive,
   onSelect,
   unreadCount,
-  leftSelect,
+  leftSection,
   subtitle,
 }: ChatCardProps) => {
   return (
@@ -34,7 +34,7 @@ const ChatCard = ({
       onClick={() => onSelect(convoId)}
     >
       <div className="flex item-center gap-3">
-        <div className="relactive">{leftSelect}</div>
+        <div className="relative">{leftSection}</div>
         <div className="flex-1 min-w-0">
           <div className="flex item-center justify=between mb-1">
             <h3

@@ -22,14 +22,13 @@ const MessageItem = ({
 }: MessageItemProps) => {
   const prev = index + 1 < messages.length ? messages[index + 1] : undefined;
 
-  const isShowTime = index === 0 ||
+  const isShowTime =
+    index === 0 ||
     new Date(message.createdAt).getTime() -
       new Date(prev?.createdAt || 0).getTime() >
       300000; //5 phut
 
-  const isGroupBreak =
-    isShowTime || 
-    message.senderId !== prev?.senderId;
+  const isGroupBreak = isShowTime || message.senderId !== prev?.senderId;
 
   const participant = selectedConvo.participants.find(
     (p: Participant) => p._id.toString() === message.senderId.toString(),
@@ -38,10 +37,13 @@ const MessageItem = ({
     <>
       {/* time */}
       {isShowTime && (
-        <span className="text-xs text-muted-foreground px-1">
-          {formatMessageTime(new Date(message.createdAt))}
-        </span>
+        <div className="flex justify-center">
+          <span className="text-xs text-muted-foreground px-1">
+            {formatMessageTime(new Date(message.createdAt))}
+          </span>
+        </div>
       )}
+
       <div
         className={cn(
           "flex gap-2 message-bounce mt-1",

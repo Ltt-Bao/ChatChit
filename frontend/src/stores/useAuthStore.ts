@@ -37,7 +37,6 @@ export const useAuthStore = create<authState>()(
     },
 
     signIn: async (username, password) => {
-
         try {
             get().clearState();
             set({loading:true})

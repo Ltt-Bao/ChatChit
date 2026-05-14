@@ -61,7 +61,7 @@ export function SigninForm ({
                     />
                     {/* error */}
                     {errors.username && (
-                      <p className="text-destructive text-sm">
+                      <p className="error-message">
                         {errors.username.message}
                       </p>
                     )}
@@ -76,7 +76,7 @@ export function SigninForm ({
                     />
                     {/* error */}
                     {errors.password && (
-                      <p className="text-destructive text-sm">
+                      <p className="error-message">
                         {errors.password.message}
                       </p>
                     )}

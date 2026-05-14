@@ -9,9 +9,13 @@ import UnreadCountBadge from "./UnreadCountBadge";
 import { useSocketStore } from "@/stores/useSocketStore";
 const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
   const { user } = useAuthStore();
-  const { activeConversationId, setActiveConversation, messages, fetchMessages } =
-    useChatStore();
-    const {onlineUsers} = useSocketStore();
+  const {
+    activeConversationId,
+    setActiveConversation,
+    messages,
+    fetchMessages,
+  } = useChatStore();
+  const { onlineUsers } = useSocketStore();
 
   if (!user) return null;
 
@@ -40,16 +44,20 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
       isActive={activeConversationId === convo._id}
       onSelect={handleSelectConversation}
       unreadCount={unreadCount}
-      leftSelect={
+      leftSection={
         <>
-          <UserAvatar type="sidebar" name={otherUser.displayName ?? ""}
+          <UserAvatar
+            type="sidebar"
+            name={otherUser.displayName ?? ""}
             avatarUrl={otherUser.avatarUrl ?? undefined}
           />
           {/* todo : socket io */}
-          <StatusBadge status={onlineUsers.includes(otherUser?._id ?? "") ? "online" : "offline"} />
-          {
-            unreadCount > 0 && <UnreadCountBadge unreadCount={unreadCount}/>
-          }
+          <StatusBadge
+            status={
+              onlineUsers.includes(otherUser?._id ?? "") ? "online" : "offline"
+            }
+          />
+          {unreadCount > 0 && <UnreadCountBadge unreadCount={unreadCount} />}
         </>
       }
       subtitle={

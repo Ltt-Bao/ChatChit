@@ -26,7 +26,7 @@ const ReceivedRequests = () => {
   const handleDecline = async (requestId: string) => {
     try {
       await declineRequest(requestId);
-      toast.info("Đã từ chối kết bạn thành công.")
+      toast.info("Đã từ chối kết bạn thành công.");
     } catch (error) {
       console.error(error);
     }
@@ -38,8 +38,9 @@ const ReceivedRequests = () => {
           key={req._id}
           requestInfo={req}
           actions={
-            <div className="flex gap-2 rounded-full px-5">
+            <div className="flex gap-2">
               <Button
+                className=" rounded-full px-5"
                 size="sm"
                 variant="primary"
                 onClick={() => handleAccept(req._id)}
@@ -48,6 +49,7 @@ const ReceivedRequests = () => {
                 Chấp nhận
               </Button>
               <Button
+                className=" rounded-full px-5"
                 size="sm"
                 variant="destructiveOutline"
                 onClick={() => handleDecline(req._id)}

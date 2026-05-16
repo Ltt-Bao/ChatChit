@@ -11,7 +11,7 @@ export const sendFriendRequest = async (req, res) => {
 
         if(from === to){
             return res.status(500).json({message: "Không thể gửi lời mời kết bạn cho chính mình"});
-        }s
+        }
 
         const UserExist = await User.exists({_id: to});
 
@@ -132,8 +132,8 @@ export const getAllFriend = async (req, res) => {
             ],
         })
         
-        .populate("userA", "_id displayName avatarUrl")
-        .populate("userB", "_id displayName avatarUrl")
+        .populate("userA", "_id displayName avatarUrl username")
+        .populate("userB", "_id displayName avatarUrl username")
         .lean();
 
         if(!friendShip){
@@ -155,12 +155,12 @@ export const getAllFriendRequest = async (req, res) => {
 
         const populateField = "_id username displayName avatarUrl";
 
-        const [sent, recieved] = await Promise.all([
+        const [sent, received] = await Promise.all([
             FriendRequest.find({from: userId}).populate("to", populateField),
             FriendRequest.find({to: userId}).populate("from", populateField)
         ])
 
-        res.status(200).json({sent, recieved});
+        res.status(200).json({sent, received});
     } catch (error) {
         console.error("Lỗi khi lấy danh sách lời mời kết bạn", error);
         return res.status(500).json({message: "Lỗi hệ thống"});

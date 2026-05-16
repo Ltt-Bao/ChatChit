@@ -22,8 +22,8 @@ const SendFriendRequestForm = ({
   onBack,
 }: sendRequestProps) => {
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div>
+    <form onSubmit={onSubmit}>
+      <div className="space-y-4">
         <span className="success-message ">
           Tìm thấy <span className="font-semibold">@{searchedUsername}</span>rồi
           nè

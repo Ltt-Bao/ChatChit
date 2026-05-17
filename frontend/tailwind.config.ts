@@ -18,6 +18,12 @@ export default {
         "2xl": "1400px",
       },
     },
+    data: {
+      active: 'state="active"',
+      inactive: 'state="inactive"',
+      horizontal: 'orientation="horizontal"',
+      vertical: 'orientation="vertical"',
+    },
     extend: {
       colors: {
         border: "hsl(var(--border))",

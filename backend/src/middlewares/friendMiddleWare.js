@@ -32,6 +32,7 @@ export const checkFriendShip = async (req, res, next) => {
                 const friend = await Friend.findOne({
                     $or: [
                         { userA: me, userB: memberId },
+                        { userA: memberId, userB: me }
                     ]
                 });
                 return friend ? null : memberId; // Nếu là bạn thì return null, không thì return ID để lọc

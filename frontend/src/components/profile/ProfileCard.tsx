@@ -4,7 +4,6 @@ import UserAvatar from "../chat/UserAvatar";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useSocketStore } from "@/stores/useSocketStore";
-import { is } from "zod/v4/locales";
 
 interface ProfileCardProps {
   user: User | null;
@@ -32,7 +31,7 @@ const ProfileCard = ({ user }: ProfileCardProps) => {
         </div>
         {/* user info */}
         <div className="text-center sm:text-left flex-1">
-          <h1 className="text-2xl font-semibold tracking-light text-white">
+          <h1 className="text-2xl font-semibold tracking-tight text-white">
             {user.displayName}
           </h1>
 

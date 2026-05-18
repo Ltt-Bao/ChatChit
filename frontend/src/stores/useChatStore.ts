@@ -13,7 +13,7 @@ export const useChatStore = create<ChatState>()(
       activeConversationId: null,
       convoLoading: false, //convo loading
       messageLoading: false, //message loading
-
+      loading: false,
       setActiveConversation: (id) => set({ activeConversationId: id }),
       reset: () => {
         set({
@@ -192,8 +192,8 @@ export const useChatStore = create<ChatState>()(
                       [user._id]: 0,
                     },
                   }
-                : c
-            )
+                : c,
+            ),
           }));
         } catch (error) {
           console.error("Lỗi xảy ra khi gọi markAsSeen trong store", error);
@@ -201,24 +201,40 @@ export const useChatStore = create<ChatState>()(
       },
       addConvo: (convo) => {
         set((state) => {
-          const exists = state.conversations.some((c) => c._id.toString() === convo._id.toString());
+          const exists = state.conversations.some(
+            (c) => c._id.toString() === convo._id.toString(),
+          );
           return {
-            conversations: exists ? state.conversations : [convo, ...state.conversations],
+            conversations: exists
+              ? state.conversations
+              : [convo, ...state.conversations],
             activeConversationId: convo._id,
           };
         });
       },
       createConversation: async (type, name, memberIds) => {
         try {
-          const conversation = await chatService.createConversation(type,name,memberIds);
+          set({ loading: true });
+          const conversation = await chatService.createConversation(
+            type,
+            name,
+            memberIds,
+          );
 
           get().addConvo(conversation);
 
-          useSocketStore.getState().socket?.emit("join-conversation", conversation._id)
+          useSocketStore
+            .getState()
+            .socket?.emit("join-conversation", conversation._id);
         } catch (error) {
-          console.error("Lỗi xảy ra khi gọi createConversation trong store", error)
+          console.error(
+            "Lỗi xảy ra khi gọi createConversation trong store",
+            error,
+          );
+        } finally {
+          set({ loading: false });
         }
-      }
+      },
     }),
     {
       name: "chat-storage",

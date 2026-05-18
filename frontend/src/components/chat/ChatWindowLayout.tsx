@@ -1,15 +1,19 @@
 import { useChatStore } from "@/stores/useChatStore";
 import ChatWelcomeScreen from "./ChatWelcomeScreen";
-import ChatWindowSkeletion from "./ChatWindowSkeletion";
 import { SidebarInset } from "../ui/sidebar";
 import ChatWindowHeader from "./ChatWindowHeader";
 import ChatWindowBody from "./ChatWindowBody";
 import MessageInput from "./MessageInput";
 import { useEffect } from "react";
+import ChatWindowSkeleton from "@/skeleton/ChatWindowSkeleton";
 
 const ChatWindowLayout = () => {
-  const { activeConversationId, conversations, messageLoading, markAsSeen } =
-    useChatStore();
+  const {
+    activeConversationId,
+    conversations,
+    messageLoading: loading,
+    markAsSeen,
+  } = useChatStore();
 
   const selectedConvo =
     conversations.find((c) => c._id === activeConversationId) ?? null;
@@ -27,15 +31,16 @@ const ChatWindowLayout = () => {
       }
     };
     markSeen();
-  },[markAsSeen, selectedConvo]);
+  }, [markAsSeen, selectedConvo]);
 
   if (!selectedConvo) {
     return <ChatWelcomeScreen />;
   }
 
-  if (messageLoading) {
-    return <ChatWindowSkeletion />;
+  if (loading) {
+    return <ChatWindowSkeleton />;
   }
+
   return (
     <SidebarInset className="flex flex-col h-full flex-1 overflow-hidden rounded-sm shadow-sm">
       {/* Header */}

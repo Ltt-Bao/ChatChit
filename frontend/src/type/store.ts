@@ -21,6 +21,7 @@ export interface authState {
   fetchMe: () => Promise<void>;
   refresh: () => Promise<void>;
   setAccessToken: (accessToken: string) => void;
+  setUser: (user: User) => void;
 }
 
 export interface ThemeState {
@@ -89,4 +90,8 @@ export interface FriendState {
   acceptRequest: (requestId: string) => Promise<void>;
   declineRequest: (requestId: string) => Promise<void>;
   getFriend: () => Promise<void>;
+}
+
+export interface UserState {
+  updateAvatarUrl: (FormData: FormData) => Promise<void>;
 }

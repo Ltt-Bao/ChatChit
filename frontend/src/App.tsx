@@ -2,13 +2,14 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import ChatAppPage from "./pages/ChatAppPage";
-import HomePage from "./pages/Homepage";
+import HomePage from "./pages/HomePage";
 import { Toaster } from "sonner";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { useThemeStore } from "./stores/useThemeStore";
 import { useEffect } from "react";
 import { useAuthStore } from "./stores/useAuthStore";
 import { useSocketStore } from "./stores/useSocketStore";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
   const { isDark, setTheme } = useThemeStore();
@@ -59,7 +60,10 @@ function App() {
 
           {/* protected routes */}
           <Route element={<ProtectedRoute />}>
+            {/* Chat Page */}
             <Route path="/chat" element={<ChatAppPage />} />
+            {/* Dashboard */}
+            <Route path="/admin" element={<DashboardPage />} />
           </Route>
 
           {/* fallback */}

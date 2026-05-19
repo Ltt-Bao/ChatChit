@@ -9,6 +9,7 @@ import friendRoute from './routes/friendRoute.js';
 import messageRoute from './routes/messageRoute.js';
 import conversationRoute from './routes/conversationRoute.js';
 import { protectedRoute } from './middlewares/authMiddleWare.js';
+import adminRoute from './routes/adminRoute.js';
 import cors from 'cors';
 import {app, server} from "./socket/index.js";
 import { v2 as cloudinary } from 'cloudinary';
@@ -40,6 +41,7 @@ app.use('/api/users', userRoute);
 app.use('/api/friends', friendRoute);
 app.use('/api/message', messageRoute);
 app.use('/api/conversations', conversationRoute);
+app.use('/api/admin', adminRoute);
 
 connectDB().then(() => {
     server.listen(PORT, () => {

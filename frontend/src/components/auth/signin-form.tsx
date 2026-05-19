@@ -30,7 +30,13 @@ export function SigninForm ({
         //gọi backend để đăng kí
         const {username, password} = data;
         await signIn(username, password);
-        navigate("/")
+        const currentUser = await useAuthStore.getState().user;
+        if(currentUser &&currentUser.role === "admin"){
+          navigate("/admin")
+        }
+        else{
+          navigate("/chat");
+        }
     }
     return (
     <div className={cn("flex flex-col gap-6 max-h-xl mx-auto", className)} {...props}>

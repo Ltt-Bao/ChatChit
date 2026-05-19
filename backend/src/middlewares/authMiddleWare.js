@@ -30,3 +30,14 @@ export const protectedRoute = (req, res, next) => {
         return res.status(500).json({message: "Lỗi hệ thống"});
     }
 }
+
+export const authorizeRoles = (...allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user || !allowedRoles.includes(req.user.role)) {
+            return res.status(403).json({ 
+                message: `Quyền của bạn (${req.user?.role || 'Khách'}) không được phép truy cập` 
+            });
+        }
+        next();
+    }
+}

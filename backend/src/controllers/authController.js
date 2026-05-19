@@ -29,7 +29,9 @@ export const signUp = async (req, res) => {
             username,
             hashedPassword,
             email,
-            displayName: `${firstname} ${lastname}`
+            displayName: `${firstname} ${lastname}`,
+            role: "user",
+            isActive: true
         })
 
         // return
@@ -56,6 +58,12 @@ export const signIn = async (req, res) => {
             return res.status(401).json({message: "username hoặc password không chính xác"});
         }
         
+        // kiểm tra tài khoản có đang bị khóa không
+        if(!user.isActive){
+            return res.status(403).json({
+                message: "Tài khoản của bạn đã bị khóa, vui lòng liên hệ admin"
+            })
+        }
         //kiểm tra passowrd
 
         const passWordCorrect = await bcrypt.compare(password, user.hashedPassword);

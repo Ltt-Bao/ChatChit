@@ -40,6 +40,17 @@ const userSchema = new mongoose.Schema({
         sparse: true, // cho phép trùng lặp giá trị (nếu có) nhưng không bắt buộc
         trim: true
     },
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user",
+        required: true,
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
+        required: true,
+    }
 },  {
     timestamps: true
 });

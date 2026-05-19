@@ -8,6 +8,8 @@ export interface User {
   phone?: string;
   createdAt: string;
   updatedAt: string;
+  role: "user" | "admin";
+  isActive: boolean;
 }
 export interface Friend {
   _id: string;

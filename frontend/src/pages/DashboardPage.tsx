@@ -132,7 +132,9 @@ const DashboardPage = () => {
             </p>
           </div>
           {/* Nút đăng xuất */}
-          <Logout />
+          <div className="hover:bg-fuchsia-300">
+            <Logout />
+          </div>
         </div>
 
         {/* Toolbar */}

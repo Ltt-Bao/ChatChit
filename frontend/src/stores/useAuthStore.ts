@@ -54,9 +54,15 @@ export const useAuthStore = create<authState>()(
             useChatStore.getState().fetchConversations();
 
             toast.success("Chào mừng ní quay lại với ChatChit nhaa")
-        } catch (error) {
+        } catch (error : any) {
             console.error(error);
-            toast.error("Đăng nhập không thành công");
+            const msg = (error as any)?.response?.data?.message;
+            if(msg === "Tài khoản của bạn đã bị khóa, vui lòng liên hệ admin"){
+                toast.error(msg);
+                return;
+            } else {
+                toast.error("Đăng nhập không thành công");
+            }
         } finally {
             set({loading: false})
         }

@@ -22,18 +22,26 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use((res) => res, async (error) => {
     const originalRequest = error.config;
 
-    if(originalRequest.url.includes("/auth/signin") || originalRequest.url.includes("/auth/signup") ||
-        originalRequest.url.includes("/auth/refresh")
-    ){
+    // Nếu là lỗi bị khóa tài khoản thì reject luôn, không refresh
+    if (error.response?.data?.message === "Tài khoản của bạn đã bị khóa, vui lòng liên hệ admin") {
         return Promise.reject(error);
     }
+    const url = originalRequest?.url || "";
+    const isAuthRoute =
+            url.includes("/auth/signin") ||
+            url.includes("/auth/signup") ||
+            url.includes("/auth/refresh");
+
+        if (isAuthRoute) {
+            return Promise.reject(error);
+        }
 
     originalRequest._retryCount = originalRequest._retryCount || 0;
     if(error.response?.status === 403 && originalRequest._retryCount < 4){
         originalRequest._retryCount += 1;
         console.log("refresh", originalRequest._retryCount)
         try {
-            const res = await api.post("/auth/refresh", {withCredentials: true});
+            const res = await api.post("/auth/refresh");
             const newAccesToken = res.data.accessToken;
 
             useAuthStore.getState().setAccessToken(newAccesToken);
@@ -47,6 +55,6 @@ api.interceptors.response.use((res) => res, async (error) => {
     }
 
     return Promise.reject(error);
-})
+});
 
 export default api;

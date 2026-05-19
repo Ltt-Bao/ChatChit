@@ -17,7 +17,7 @@ const Logout = () => {
     }
   return (
     <Button variant="completeGhost" onClick={handleLogout}>
-        <LogOut className="text-destructive"/>   
+        <LogOut className="text-destructive hover:text-fuchsia-700"/>   
         Logout 
     </Button>
   )

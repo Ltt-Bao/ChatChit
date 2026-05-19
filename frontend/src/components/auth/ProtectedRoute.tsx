@@ -1,11 +1,13 @@
 import { useAuthStore } from "@/stores/useAuthStore"
 import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router";
+import { useLocation } from "react-router";
 
 
 const ProtectedRoute = () => {
     const {accessToken, user, loading, refresh, fetchMe} = useAuthStore();
     const [starting, setStarting] = useState(true);
+    const location = useLocation();
 
     const init = async () => {
         // có thể xảy ra khi rf trang
@@ -31,6 +33,24 @@ const ProtectedRoute = () => {
         return(
             <Navigate
                 to="signin"
+                replace
+            />
+        )
+    }
+
+    if(location.pathname.startsWith("/admin") && user?.role !== "admin") {
+        return(
+            <Navigate 
+                to="chat"
+                replace
+            />
+        )
+    }
+
+    if(location.pathname.startsWith("/chat") && user?.role === "admin"){
+        return(
+            <Navigate 
+                to="admin"
                 replace
             />
         )

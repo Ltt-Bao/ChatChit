@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "../ui/label"
-import {z} from 'zod'
-import {useForm} from 'react-hook-form'
-import {zodResolver} from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuthStore } from "@/stores/useAuthStore"
 import { useNavigate } from "react-router"
 
@@ -16,29 +16,34 @@ const signInSchema = z.object({
 
 type signInFormValues = z.infer<typeof signInSchema>
 
-export function SigninForm ({
+export function SigninForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
 
-    const {signIn} = useAuthStore();
-    const navigate = useNavigate();
-    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<signInFormValues>({
-        resolver: zodResolver(signInSchema)
-      });
-    const onSubmit = async (data: signInFormValues) => {
-        //gọi backend để đăng kí
-        const {username, password} = data;
-        await signIn(username, password);
-        const currentUser = await useAuthStore.getState().user;
-        if(currentUser &&currentUser.role === "admin"){
-          navigate("/admin")
-        }
-        else{
-          navigate("/chat");
-        }
+  const { signIn } = useAuthStore();
+  const navigate = useNavigate();
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<signInFormValues>({
+    resolver: zodResolver(signInSchema)
+  });
+  const onSubmit = async (data: signInFormValues) => {
+    //gọi backend để đăng kí
+    const { username, password } = data;
+    await signIn(username, password);
+
+    const currentUser = useAuthStore.getState().user;
+
+    // Nếu đăng nhập thất bại, không điều hướng
+    if (!currentUser) return;
+
+    if (currentUser.role === "admin") {
+      navigate("/admin")
     }
-    return (
+    else {
+      navigate("/chat");
+    }
+  }
+  return (
     <div className={cn("flex flex-col gap-6 max-h-xl mx-auto", className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
@@ -57,44 +62,44 @@ export function SigninForm ({
                 </p>
               </div>
               {/* user name */}
-                  <div className="flex flex-col gap-3">
-                    <Label htmlFor="username" className="block text-sm">Tên đăng nhập</Label>
-                    <Input
-                      type="text"
-                      id="username"
-                      placeholder="ChatChit"
-                      {...register("username")}
-                    />
-                    {/* error */}
-                    {errors.username && (
-                      <p className="error-message">
-                        {errors.username.message}
-                      </p>
-                    )}
-                  </div>
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="username" className="block text-sm">Tên đăng nhập</Label>
+                <Input
+                  type="text"
+                  id="username"
+                  placeholder="ChatChit"
+                  {...register("username")}
+                />
+                {/* error */}
+                {errors.username && (
+                  <p className="error-message">
+                    {errors.username.message}
+                  </p>
+                )}
+              </div>
               {/* password */}
-                  <div className="flex flex-col gap-3">
-                    <Label htmlFor="password" className="block text-sm">Mật khẩu</Label>
-                    <Input
-                      type="password"
-                      id="password"
-                      {...register("password")}
-                    />
-                    {/* error */}
-                    {errors.password && (
-                      <p className="error-message">
-                        {errors.password.message}
-                      </p>
-                    )}
-                  </div>
+              <div className="flex flex-col gap-3">
+                <Label htmlFor="password" className="block text-sm">Mật khẩu</Label>
+                <Input
+                  type="password"
+                  id="password"
+                  {...register("password")}
+                />
+                {/* error */}
+                {errors.password && (
+                  <p className="error-message">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
               {/* nút signIn */}
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    Đăng nhập
-                  </Button>
-                  <div className="text-center text-sm">
-                    Chưa có tài khoản? {" "}
-                    <a href="/signup" className="underline underline-offset-4 hover:text-primary">Đăng kí đê</a>
-                  </div>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                Đăng nhập
+              </Button>
+              <div className="text-center text-sm">
+                Chưa có tài khoản? {" "}
+                <a href="/signup" className="underline underline-offset-4 hover:text-primary">Đăng kí đê</a>
+              </div>
             </div>
           </form>
           <div className="relative hidden bg-muted md:block">

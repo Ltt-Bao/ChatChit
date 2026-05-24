@@ -26,6 +26,7 @@ import {
   LogOutIcon,
   UserIcon,
   Bell,
+  KeyRound,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useNavigate } from "react-router";
@@ -33,6 +34,7 @@ import Logout from "../auth/Logout";
 import { useState } from "react";
 import FriendRequestDialog from "@/components/friendRequest/FriendRequestDialog";
 import ProfileDialog from "../profile/ProfileDialog";
+import ChangePasswordDialog from "../auth/ChangePasswordDialog";
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar();
@@ -50,6 +52,7 @@ export function NavUser({ user }: { user: User }) {
   };
 
   const [profileOpen, setProfileOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
   return (
     <>
@@ -108,6 +111,12 @@ export function NavUser({ user }: { user: User }) {
                   <Bell className="text-muted-foreground dark:group-focus:text-accent-foreground!" />
                   Thông báo
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setChangePasswordOpen(true)}
+                >
+                  <KeyRound className="text-muted-foreground dark:group-focus:text-accent-foreground!" />
+                  Đổi mật khẩu
+                </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -129,6 +138,11 @@ export function NavUser({ user }: { user: User }) {
       <ProfileDialog
         open={profileOpen}
         setOpen={setProfileOpen}
+      />
+
+      <ChangePasswordDialog
+        open={changePasswordOpen}
+        setOpen={setChangePasswordOpen}
       />
     </>
   );

@@ -11,4 +11,8 @@ export const userService = {
     }
     return res.data;
   },
+  changePassword: async (oldPassword: string, newPassword: string) => {
+    const res = await api.post("/users/changePassword", { oldPassword, newPassword });
+    return res.data;
+  },
 };

@@ -235,6 +235,53 @@ export const useChatStore = create<ChatState>()(
           set({ loading: false });
         }
       },
+      addMembers: async (conversationId, memberIds) => {
+        try {
+          set({ loading: true });
+          const conversation = await chatService.addMembersToConversation(
+            conversationId,
+            memberIds,
+          );
+
+          get().updateConversation(conversation);
+        } catch (error) {
+          console.error("Lỗi xảy ra khi gọi addMembers trong store", error);
+        } finally {
+          set({ loading: false });
+        }
+      },
+      removeMember: async (conversationId, memberId) => {
+        try {
+          set({ loading: true });
+          const conversation = await chatService.removeMemberFromConversation(
+            conversationId,
+            memberId,
+          );
+
+          get().updateConversation(conversation);
+        } catch (error) {
+          console.error("Lỗi xảy ra khi gọi removeMember trong store", error);
+        } finally {
+          set({ loading: false });
+        }
+      },
+      deleteConvo: async (conversationId) => {
+        try {
+          set({ loading: true });
+          await chatService.deleteConversation(conversationId);
+          
+          const { conversations, activeConversationId } = get();
+          const newConversations = conversations.filter(c => c._id !== conversationId);
+          set({ 
+            conversations: newConversations,
+            activeConversationId: activeConversationId === conversationId ? null : activeConversationId
+          });
+        } catch (error) {
+          console.error("Lỗi xảy ra khi gọi deleteConvo trong store", error);
+        } finally {
+          set({ loading: false });
+        }
+      },
     }),
     {
       name: "chat-storage",

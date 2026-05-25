@@ -8,6 +8,8 @@ import StatusBadge from "./StatusBadge";
 import GroupChatAvatar from "./GroupChatAvatar";
 import { useSocketStore } from "@/stores/useSocketStore";
 
+import GroupMemberActions from "./GroupMemberActions";
+
 const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
   const { conversations, activeConversationId } = useChatStore();
   const { user } = useAuthStore();
@@ -37,30 +39,36 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
           orientation="vertical"
           className="mr-2 data-[orientation=vertical:h-4"
         />
-        <div className="pad-2 w-full flex items-center gap-3">
-          {/* avatar */}
-          <div className="relative">
-            {chat.type === "direct" ? (
-              <>
-                <UserAvatar
-                  type={"sidebar"}
-                  name={otherUser?.displayName || "ChatChit"}
-                  avatarUrl={otherUser?.avatarUrl || undefined}
+        <div className="pad-2 w-full flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            {/* avatar */}
+            <div className="relative">
+              {chat.type === "direct" ? (
+                <>
+                  <UserAvatar
+                    type={"sidebar"}
+                    name={otherUser?.displayName || "ChatChit"}
+                    avatarUrl={otherUser?.avatarUrl || undefined}
+                  />
+                  {/* todo: socket io */}
+                  <StatusBadge status={onlineUsers.includes(otherUser?._id ?? "") ? "online" : "offline"} />
+                </>
+              ) : (
+                <GroupChatAvatar
+                  participants={chat.participants}
+                  type="sidebar"
                 />
-                {/* todo: socket io */}
-                <StatusBadge status={onlineUsers.includes(otherUser?._id ?? "") ? "online" : "offline"} />
-              </>
-            ) : (
-              <GroupChatAvatar
-                participants={chat.participants}
-                type="sidebar"
-              />
-            )}
+              )}
+            </div>
+            {/* name */}
+            <h2 className="font-semibold text-foreground">
+              {chat.type === "direct" ? otherUser?.displayName : chat.group?.name}
+            </h2>
           </div>
-          {/* name */}
-          <h2 className="font-semibold text-foreground">
-            {chat.type === "direct" ? otherUser?.displayName : chat.group?.name}
-          </h2>
+
+          {chat.type === "group" && (
+            <GroupMemberActions chat={chat} />
+          )}
         </div>
       </div>
     </header>

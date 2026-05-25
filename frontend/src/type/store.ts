@@ -70,6 +70,9 @@ export interface ChatState {
     name: string,
     memberIds: string[],
   ) => Promise<void>;
+  addMembers: (conversationId: string, memberIds: string[]) => Promise<void>;
+  removeMember: (conversationId: string, memberId: string) => Promise<void>;
+  deleteConvo: (conversationId: string) => Promise<void>;
 }
 
 export interface SocketState {

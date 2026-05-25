@@ -76,6 +76,31 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       useChatStore.getState().addConvo(conversation);
       socket.emit("join-conversation", conversation._id);
     });
+
+    // update conversation
+    socket.on("update-conversation", (conversation) => {
+      useChatStore.getState().updateConversation(conversation);
+    });
+
+    // removed from group
+    socket.on("removed-from-group", ({ conversationId }) => {
+      const { conversations, activeConversationId } = useChatStore.getState();
+      const newConversations = conversations.filter(c => c._id !== conversationId);
+      useChatStore.setState({ 
+        conversations: newConversations,
+        activeConversationId: activeConversationId === conversationId ? null : activeConversationId
+      });
+    });
+
+    // deleted conversation
+    socket.on("deleted-conversation", ({ conversationId }) => {
+      const { conversations, activeConversationId } = useChatStore.getState();
+      const newConversations = conversations.filter(c => c._id !== conversationId);
+      useChatStore.setState({ 
+        conversations: newConversations,
+        activeConversationId: activeConversationId === conversationId ? null : activeConversationId
+      });
+    });
   },
   disconnectSocket: () => {
     const socket = get().socket;

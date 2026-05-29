@@ -5,7 +5,8 @@ import {
     acceptFriendRequest,
     declineFriendRequest,
     getAllFriend,
-    getAllFriendRequest
+    getAllFriendRequest,
+    unfriend
 } from '../controllers/friendController.js';
 
 const router = express.Router();
@@ -17,6 +18,8 @@ router.post("/requests/:requestId/accept", acceptFriendRequest);
 router.post("/requests/:requestId/decline", declineFriendRequest);
 
 router.get("/", getAllFriend);
+
+router.delete("/:friendId", unfriend);
 
 router.get("/requests", getAllFriendRequest);
 

@@ -7,6 +7,16 @@ import UserAvatar from "./UserAvatar";
 import StatusBadge from "./StatusBadge";
 import UnreadCountBadge from "./UnreadCountBadge";
 import { useSocketStore } from "@/stores/useSocketStore";
+import { useFriendStore } from "@/stores/useFriendStore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { MoreHorizontal, UserMinus } from "lucide-react";
+import { toast } from "sonner";
+
 const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
   const { user } = useAuthStore();
   const {
@@ -15,12 +25,16 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
     messages,
     fetchMessages,
   } = useChatStore();
+  const { unfriend, friends } = useFriendStore();
   const { onlineUsers } = useSocketStore();
 
   if (!user) return null;
 
   const otherUser = convo.participants.find((p) => p._id !== user._id);
   if (!otherUser) return null;
+
+  const isFriend = friends.some((f) => f._id === otherUser._id);
+  if (!isFriend) return null;
 
   const unreadCount = convo.unreadCounts[user._id];
   const lastMessage = convo.lastMessage?.content ?? "";
@@ -30,6 +44,14 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
     if (!messages[id]) {
       await fetchMessages();
     }
+  };
+
+  const handleUnfriend = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm("Bạn có chắc chắn muốn hủy kết bạn với người này?")) return;
+    
+    await unfriend(otherUser._id);
+    toast.success("Đã hủy kết bạn");
   };
 
   return (
@@ -71,6 +93,24 @@ const DirectMessageCard = ({ convo }: { convo: Conversation }) => {
         >
           {lastMessage}
         </p>
+      }
+      actionMenu={
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+            <div className="p-1 hover:bg-muted rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+              <MoreHorizontal className="size-4 text-muted-foreground hover:size-5 transition-smooth" />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={handleUnfriend}
+              className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+            >
+              <UserMinus className="size-4 mr-2" />
+              Hủy kết bạn
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       }
     />
   );

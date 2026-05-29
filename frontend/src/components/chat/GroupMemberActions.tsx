@@ -110,12 +110,10 @@ const GroupMemberActions = ({ chat }: { chat: Conversation }) => {
             <Users className="size-4 mr-2" />
             Xem thành viên
           </DropdownMenuItem>
-          {isCreator && (
-            <DropdownMenuItem onClick={handleOpenAdd} className="cursor-pointer">
-              <UserPlus className="size-4 mr-2" />
-              Thêm thành viên
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem onClick={handleOpenAdd} className="cursor-pointer">
+            <UserPlus className="size-4 mr-2" />
+            Thêm thành viên
+          </DropdownMenuItem>
           {isCreator && (
             <>
               <DropdownMenuSeparator />

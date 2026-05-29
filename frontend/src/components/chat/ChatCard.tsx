@@ -12,6 +12,7 @@ interface ChatCardProps {
   unreadCount?: number;
   leftSection: React.ReactNode;
   subtitle: React.ReactNode;
+  actionMenu?: React.ReactNode;
 }
 const ChatCard = ({
   convoId,
@@ -22,6 +23,7 @@ const ChatCard = ({
   unreadCount,
   leftSection,
   subtitle,
+  actionMenu,
 }: ChatCardProps) => {
   return (
     <Card
@@ -53,7 +55,9 @@ const ChatCard = ({
             <div className="flex items-center gap-1 flex-1 min-w-0">
               {subtitle}
             </div>
-            <MoreHorizontal className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100 hover:size-5 transition-smooth" />
+            {actionMenu ? actionMenu : (
+              <MoreHorizontal className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100 hover:size-5 transition-smooth" />
+            )}
           </div>
         </div>
       </div>

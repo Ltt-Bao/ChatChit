@@ -24,11 +24,22 @@ import AddFriendModal from "../chat/AddFriendModal";
 import DirectMessageList from "../chat/DirectMessageList";
 import { useThemeStore } from "@/stores/useThemeStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useFriendStore } from "@/stores/useFriendStore";
+import { useChatStore } from "@/stores/useChatStore";
 import { NavUser } from "./nav-user";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { isDark, toggleTheme } = useThemeStore();
   const { user } = useAuthStore();
+  const { getFriend } = useFriendStore();
+  const { fetchConversations } = useChatStore();
+
+  React.useEffect(() => {
+    if (user) {
+      getFriend();
+      fetchConversations();
+    }
+  }, [user, getFriend, fetchConversations]);
 
   return (
     <Sidebar variant="inset" {...props}>

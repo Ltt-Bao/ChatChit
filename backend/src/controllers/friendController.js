@@ -166,3 +166,26 @@ export const getAllFriendRequest = async (req, res) => {
         return res.status(500).json({message: "Lỗi hệ thống"});
     }
 }
+
+export const unfriend = async (req, res) => {
+    try {
+        const { friendId } = req.params;
+        const userId = req.user._id;
+
+        const deletedFriend = await Friend.findOneAndDelete({
+            $or: [
+                { userA: userId, userB: friendId },
+                { userA: friendId, userB: userId }
+            ]
+        });
+
+        if (!deletedFriend) {
+            return res.status(404).json({ message: "Không tìm thấy bạn bè" });
+        }
+
+        return res.status(200).json({ message: "Hủy kết bạn thành công", friendId });
+    } catch (error) {
+        console.error("Lỗi khi hủy kết bạn", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+}

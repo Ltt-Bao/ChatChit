@@ -42,4 +42,12 @@ export const friendService = {
         const res = await api.get("/friends");
         return res.data.friends;
     },
+    
+    async unfriend(friendId: string){
+        try {
+            await api.delete(`/friends/${friendId}`);
+        } catch (error) {
+            console.error("Lỗi khi gửi unfriend", error);
+        }
+    }
 }

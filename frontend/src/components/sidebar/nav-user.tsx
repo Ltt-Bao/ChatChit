@@ -19,11 +19,6 @@ import {
 import type { User } from "@/type/user";
 import {
   ChevronsUpDownIcon,
-  SparklesIcon,
-  BadgeCheckIcon,
-  CreditCardIcon,
-  BellIcon,
-  LogOutIcon,
   UserIcon,
   Bell,
   KeyRound,

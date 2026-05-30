@@ -292,6 +292,20 @@
   .beautiful-scrollbar {
     @apply scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent dark:scrollbar-thumb-slate-600;
   }
+  .beautiful-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .beautiful-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .beautiful-scrollbar::-webkit-scrollbar-thumb {
+    background: hsla(240, 15%, 50%, 0.3);
+    border-radius: 9999px;
+  }
+  .beautiful-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsla(240, 15%, 50%, 0.5);
+  }
   /* Animations */
   .transition-bounce {
     transition: var(--transition-bounce);

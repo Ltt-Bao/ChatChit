@@ -7,9 +7,9 @@ const DirectMessageList = () => {
   if (!conversations) return null;
 
   const directConversations = conversations.filter(
-    (convo) => convo.type === 'direct');
+    (convo) => convo.type === 'direct').slice(0, 5);
   return (
-    <div className="flex-1 overflow-y-auto p-2 space-y-2">
+    <div className="space-y-2 p-1">
       {
         directConversations.map((convo) => (
         <DirectMessageCard 

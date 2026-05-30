@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { connect, io, type Socket } from "socket.io-client";
+import { io, type Socket } from "socket.io-client";
 import { useAuthStore } from "./useAuthStore";
 import type { SocketState } from "@/type/store";
 import { useChatStore } from "./useChatStore";

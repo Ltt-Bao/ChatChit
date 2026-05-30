@@ -10,7 +10,6 @@ const ChatWindowBody = () => {
     conversations,
     messages: allMessages,
     fetchMessages,
-    updateConversation,
   } = useChatStore();
   const [lastMessageStatus, setLastMessageStatus] = useState<
     "delivered" | "seen"

@@ -10,15 +10,29 @@ const api = axios.create({
 // gắn accessToken vào req 
 
 api.interceptors.request.use((config) => {
-    const {accessToken} = useAuthStore.getState();
+    const { accessToken } = useAuthStore.getState();
 
-    if(accessToken){
+    if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
 });
 
 //tự động rf api khi accessToken hết hạn
+let isRefreshing = false;
+let failedQueue: Array<any> = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
 api.interceptors.response.use((res) => res, async (error) => {
     const originalRequest = error.config;
 
@@ -28,18 +42,29 @@ api.interceptors.response.use((res) => res, async (error) => {
     }
     const url = originalRequest?.url || "";
     const isAuthRoute =
-            url.includes("/auth/signin") ||
-            url.includes("/auth/signup") ||
-            url.includes("/auth/refresh");
+        url.includes("/auth/signin") ||
+        url.includes("/auth/signup") ||
+        url.includes("/auth/refresh");
 
-        if (isAuthRoute) {
-            return Promise.reject(error);
+    if (isAuthRoute) {
+        return Promise.reject(error);
+    }
+
+    if (error.response?.status === 403 && !originalRequest._retry) {
+        if (isRefreshing) {
+            return new Promise(function (resolve, reject) {
+                failedQueue.push({ resolve, reject });
+            })
+                .then(token => {
+                    originalRequest.headers.Authorization = `Bearer ${token}`;
+                    return api(originalRequest);
+                })
+                .catch(err => Promise.reject(err));
         }
 
-    originalRequest._retryCount = originalRequest._retryCount || 0;
-    if(error.response?.status === 403 && originalRequest._retryCount < 4){
-        originalRequest._retryCount += 1;
-        console.log("refresh", originalRequest._retryCount)
+        originalRequest._retry = true;
+        isRefreshing = true;
+
         try {
             const res = await api.post("/auth/refresh");
             const newAccesToken = res.data.accessToken;
@@ -47,10 +72,17 @@ api.interceptors.response.use((res) => res, async (error) => {
             useAuthStore.getState().setAccessToken(newAccesToken);
 
             originalRequest.headers.Authorization = `Bearer ${newAccesToken}`;
+
+            processQueue(null, newAccesToken);
+
             return api(originalRequest)
         } catch (refreshError) {
+            processQueue(refreshError, null);
             useAuthStore.getState().clearState();
+            window.location.href = '/signin';
             return Promise.reject(refreshError);
+        } finally {
+            isRefreshing = false;
         }
     }
 

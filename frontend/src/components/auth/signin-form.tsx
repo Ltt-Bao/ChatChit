@@ -27,7 +27,7 @@ export function SigninForm({
     resolver: zodResolver(signInSchema)
   });
   const onSubmit = async (data: signInFormValues) => {
-    //gọi backend để đăng kí
+    //gọi backend để đăng nhập
     const { username, password } = data;
     await signIn(username, password);
 

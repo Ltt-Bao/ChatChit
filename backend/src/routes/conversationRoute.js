@@ -7,6 +7,7 @@ import {
     addMembers,
     removeMember,
     deleteConversation,
+    leaveGroup,
 } from '../controllers/conversationController.js';
 import { checkFriendShip } from '../middlewares/friendMiddleWare.js';
 
@@ -18,6 +19,7 @@ router.get("/:conversationId/messages", getMessage);
 router.patch("/:conversationId/seen", markAsSeen);
 router.post("/:conversationId/members", addMembers);
 router.delete("/:conversationId/members/:memberId", removeMember);
+router.delete("/:conversationId/leave", leaveGroup);
 router.delete("/:conversationId", deleteConversation);
 
 export default router;

@@ -90,6 +90,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         conversations: newConversations,
         activeConversationId: activeConversationId === conversationId ? null : activeConversationId
       });
+      socket.emit("leave-conversation", conversationId);
     });
 
     // deleted conversation

@@ -282,6 +282,24 @@ export const useChatStore = create<ChatState>()(
           set({ loading: false });
         }
       },
+      leaveGroup: async (conversationId) => {
+        try {
+          set({ loading: true });
+          await chatService.leaveGroup(conversationId);
+          
+          const { conversations, activeConversationId } = get();
+          const newConversations = conversations.filter(c => c._id !== conversationId);
+          set({ 
+            conversations: newConversations,
+            activeConversationId: activeConversationId === conversationId ? null : activeConversationId
+          });
+        } catch (error) {
+          console.error("Lỗi xảy ra khi gọi leaveGroup trong store", error);
+          throw error;
+        } finally {
+          set({ loading: false });
+        }
+      },
     }),
     {
       name: "chat-storage",

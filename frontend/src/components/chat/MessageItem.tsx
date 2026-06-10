@@ -44,60 +44,68 @@ const MessageItem = ({
         </div>
       )}
 
-      <div
-        className={cn(
-          "flex gap-2 message-bounce mt-1",
-          message.isOwn ? "justify-end" : "justify-start",
-        )}
-      >
-        {/* avatar */}
-        {!message.isOwn && (
-          <div className="w-8">
-            {isGroupBreak && (
-              <UserAvatar
-                type="chat"
-                name={participant?.displayName ?? "ChatChit"}
-                avatarUrl={participant?.avatarUrl ?? undefined}
-              />
-            )}
-          </div>
-        )}
-        {/* tin nhan */}
+      {message.isSystem ? (
+        <div className="flex justify-center my-2 w-full">
+          <span className="text-xs bg-muted/60 text-muted-foreground px-3 py-1 rounded-full border border-border/40 select-none">
+            {message.content}
+          </span>
+        </div>
+      ) : (
         <div
           className={cn(
-            "max-w-xs lg:max-w-md space-y-1 flex flex-col",
-            message.isOwn ? "items-end" : "items-start",
+            "flex gap-2 message-bounce mt-1",
+            message.isOwn ? "justify-end" : "justify-start",
           )}
         >
-          <Card
+          {/* avatar */}
+          {!message.isOwn && (
+            <div className="w-8">
+              {isGroupBreak && (
+                <UserAvatar
+                  type="chat"
+                  name={participant?.displayName ?? "ChatChit"}
+                  avatarUrl={participant?.avatarUrl ?? undefined}
+                />
+              )}
+            </div>
+          )}
+          {/* tin nhan */}
+          <div
             className={cn(
-              "p-3",
-              message.isOwn
-                ? "bg-chat-bubble-sent border-0 text-primary-foreground"
-                : "bg-chat-bubble-received",
+              "max-w-xs lg:max-w-md space-y-1 flex flex-col",
+              message.isOwn ? "items-end" : "items-start",
             )}
           >
-            <p className="text-sm leading-relaxed wrap-break-word">
-              {message.content}
-            </p>
-          </Card>
-
-          {/* seen/ delivered */}
-          {message.isOwn && message._id === selectedConvo.lastMessage?._id && (
-            <Badge
-              variant="outline"
+            <Card
               className={cn(
-                "text-xs px-1.5 py-0.5 h-4 border-0",
-                lastMessageStatus === "seen"
-                  ? "bg-primary/20 text-primary"
-                  : "bg-muted text-muted-foreground",
+                "p-3",
+                message.isOwn
+                  ? "bg-chat-bubble-sent border-0 text-primary-foreground"
+                  : "bg-chat-bubble-received",
               )}
             >
-              {lastMessageStatus}
-            </Badge>
-          )}
+              <p className="text-sm leading-relaxed wrap-break-word">
+                {message.content}
+              </p>
+            </Card>
+
+            {/* seen/ delivered */}
+            {message.isOwn && message._id === selectedConvo.lastMessage?._id && (
+              <Badge
+                variant="outline"
+                className={cn(
+                  "text-xs px-1.5 py-0.5 h-4 border-0",
+                  lastMessageStatus === "seen"
+                    ? "bg-primary/20 text-primary"
+                    : "bg-muted text-muted-foreground",
+                )}
+              >
+                {lastMessageStatus}
+              </Badge>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 };

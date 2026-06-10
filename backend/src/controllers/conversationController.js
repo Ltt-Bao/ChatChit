@@ -1,6 +1,7 @@
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
 import { io } from "../socket/index.js";
+import { upDateConversationAfterMessage, emitNewMessage } from "../utils/messageHelper.js";
 
 export const createConversation = async (req, res) => {
   try {
@@ -388,6 +389,104 @@ export const deleteConversation = async (req, res) => {
     return res.status(200).json({ message: "Đã xóa cuộc trò chuyện", conversationId });
   } catch (error) {
     console.error("Lỗi khi xóa cuộc trò chuyện", error);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+export const leaveGroup = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user._id;
+
+    const conversation = await Conversation.findById(conversationId);
+
+    if (!conversation) {
+      return res.status(404).json({ message: "Cuộc trò chuyện không tồn tại" });
+    }
+
+    if (conversation.type !== "group") {
+      return res.status(400).json({ message: "Chỉ có thể rời khỏi nhóm" });
+    }
+
+    const memberIndex = conversation.participants.findIndex(
+      (p) => p.userId.toString() === userId.toString()
+    );
+
+    if (memberIndex === -1) {
+      return res.status(404).json({ message: "Bạn không phải là thành viên của nhóm này" });
+    }
+
+    // Xóa user khỏi danh sách participants
+    conversation.participants.splice(memberIndex, 1);
+
+    // Kiểm tra nếu là trưởng nhóm rời đi
+    if (conversation.group.createdBy.toString() === userId.toString()) {
+      if (conversation.participants.length > 0) {
+        // Chuyển quyền trưởng nhóm cho một thành viên bất kỳ còn lại
+        const randomIndex = Math.floor(Math.random() * conversation.participants.length);
+        const newCreator = conversation.participants[randomIndex];
+        conversation.group.createdBy = newCreator.userId;
+      } else {
+        // Không còn ai, xóa tin nhắn và cuộc trò chuyện
+        await Message.deleteMany({ conversationId: conversation._id });
+        await Conversation.findByIdAndDelete(conversation._id);
+
+        io.to(userId.toString()).emit("removed-from-group", { conversationId });
+        return res.status(200).json({ message: "Đã rời nhóm và xóa nhóm do không còn thành viên", conversationId });
+      }
+    } else {
+      if (conversation.participants.length === 0) {
+        await Message.deleteMany({ conversationId: conversation._id });
+        await Conversation.findByIdAndDelete(conversation._id);
+
+        io.to(userId.toString()).emit("removed-from-group", { conversationId });
+        return res.status(200).json({ message: "Đã rời nhóm và xóa nhóm do không còn thành viên", conversationId });
+      }
+    }
+
+    // Tạo tin nhắn hệ thống thông báo người dùng rời nhóm
+    const leaveMessage = await Message.create({
+      conversationId: conversation._id,
+      senderId: userId,
+      content: `${req.user.displayName} đã rời khỏi nhóm`,
+      isSystem: true,
+    });
+
+    // Cập nhật lastMessage và unreadCounts cho cuộc trò chuyện
+    upDateConversationAfterMessage(conversation, leaveMessage, userId);
+
+    await conversation.save();
+
+    await conversation.populate([
+      { path: "participants.userId", select: "displayName avatarUrl" },
+      { path: "seenBy", select: "displayName avatarUrl" },
+      { path: "lastMessage.senderId", select: "displayName avatarUrl" },
+    ]);
+
+    const participants = conversation.participants.map((p) => ({
+      _id: p.userId?._id,
+      displayName: p.userId?.displayName,
+      avatarUrl: p.userId?.avatarUrl ?? null,
+      joinedAt: p.joinedAt,
+    }));
+
+    const formatted = { ...conversation.toObject(), participants };
+
+    // Emit tin nhắn hệ thống tới tất cả thành viên trong nhóm
+    emitNewMessage(io, conversation, leaveMessage);
+
+    // Gửi sự kiện removed-from-group cho người rời nhóm để cập nhật UI của họ
+    io.to(userId.toString()).emit("removed-from-group", { conversationId });
+
+    // Gửi sự kiện update-conversation cho các thành viên còn lại
+    const remainingMemberIds = conversation.participants.map((p) => p.userId.toString());
+    remainingMemberIds.forEach((id) => {
+      io.to(id).emit("update-conversation", formatted);
+    });
+
+    return res.status(200).json({ conversation: formatted, message: "Đã rời khỏi nhóm thành công" });
+  } catch (error) {
+    console.error("Lỗi khi rời khỏi nhóm", error);
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };

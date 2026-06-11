@@ -78,4 +78,9 @@ export const chatService = {
     const res = await api.delete(`/conversations/${conversationId}`);
     return res.data;
   },
+
+  async leaveGroup(conversationId: string) {
+    const res = await api.delete(`/conversations/${conversationId}/leave`);
+    return res.data;
+  },
 };

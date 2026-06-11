@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MoreVertical, UserPlus, Users, Trash2, UserMinus } from "lucide-react";
+import { MoreVertical, UserPlus, Users, Trash2, UserMinus, LogOut } from "lucide-react";
 import { useFriendStore } from "@/stores/useFriendStore";
 import { useChatStore } from "@/stores/useChatStore";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -36,7 +36,7 @@ const GroupMemberActions = ({ chat }: { chat: Conversation }) => {
   const [invitedUsers, setInvitedUsers] = useState<Friend[]>([]);
 
   const { friends, getFriend } = useFriendStore();
-  const { addMembers, removeMember, deleteConvo, loading } = useChatStore();
+  const { addMembers, removeMember, deleteConvo, leaveGroup, loading } = useChatStore();
   const { user } = useAuthStore();
 
   const currentMemberIds = chat.participants.map((p) => p._id);
@@ -97,6 +97,21 @@ const GroupMemberActions = ({ chat }: { chat: Conversation }) => {
     toast.success("Đã xóa cuộc hội thoại");
   };
 
+  const handleLeaveGroup = async () => {
+    let confirmMsg = "Bạn có chắc chắn muốn rời nhóm?";
+    if (isCreator && chat.participants.length > 1) {
+      confirmMsg = "Bạn là trưởng nhóm. Nếu rời nhóm, quyền trưởng nhóm sẽ được chuyển ngẫu nhiên cho một thành viên khác. Bạn vẫn muốn rời nhóm?";
+    }
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      await leaveGroup(chat._id);
+      toast.success("Đã rời nhóm thành công");
+    } catch (error) {
+      toast.error("Không thể rời nhóm");
+    }
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -123,6 +138,11 @@ const GroupMemberActions = ({ chat }: { chat: Conversation }) => {
               </DropdownMenuItem>
             </>
           )}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleLeaveGroup} className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
+            <LogOut className="size-4 mr-2" />
+            Rời nhóm
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

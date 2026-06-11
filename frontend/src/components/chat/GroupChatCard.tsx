@@ -44,6 +44,7 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
           {convo.participants.length} Thanh vien
         </p>
       }
+      actionMenu={<></>}
     />
   );
 };

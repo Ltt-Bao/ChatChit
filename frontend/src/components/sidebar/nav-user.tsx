@@ -22,10 +22,11 @@ import {
   UserIcon,
   Bell,
   KeyRound,
+  LogOut,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useNavigate } from "react-router";
-import Logout from "../auth/Logout";
+
 import { useState } from "react";
 import FriendRequestDialog from "@/components/friendRequest/FriendRequestDialog";
 import ProfileDialog from "../profile/ProfileDialog";
@@ -119,7 +120,8 @@ export function NavUser({ user }: { user: User }) {
                 variant="destructive"
                 onClick={handleLogout}
               >
-                <Logout />
+                <LogOut className="size-4 mr-2" />
+                Đăng xuất
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

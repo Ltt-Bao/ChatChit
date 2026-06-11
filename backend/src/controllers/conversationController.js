@@ -1,5 +1,6 @@
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
+import User from "../models/User.js";
 import { io } from "../socket/index.js";
 import { upDateConversationAfterMessage, emitNewMessage } from "../utils/messageHelper.js";
 
@@ -70,15 +71,15 @@ export const createConversation = async (req, res) => {
       joinedAt: p.joinedAt,
     }));
 
-    const formatted = {...conversation.toObject(), participants};
+    const formatted = { ...conversation.toObject(), participants };
 
-    if(type === "group"){
+    if (type === "group") {
       memberIds.forEach((userId) => {
         io.to(userId).emit("new-group", formatted);
       })
     }
 
-    return res.status(201).json({ conversation: formatted});
+    return res.status(201).json({ conversation: formatted });
   } catch (error) {
     console.error("Lỗi khi tạo cuộc trò chuyện", error);
     return res.status(500).json({ message: "Lỗi hệ thống" });
@@ -263,6 +264,22 @@ export const addMembers = async (req, res) => {
     }));
 
     conversation.participants.push(...newParticipants);
+
+    // Tạo tin nhắn hệ thống thông báo người dùng thêm thành viên mới
+    const addedUsers = await User.find({ _id: { $in: newMembers } }).select("displayName");
+    const addedMessages = [];
+
+    for (const addedUser of addedUsers) {
+      const addMessage = await Message.create({
+        conversationId: conversation._id,
+        senderId: userId,
+        content: `${req.user.displayName} đã thêm ${addedUser.displayName} vào nhóm`,
+        isSystem: true,
+      });
+
+      upDateConversationAfterMessage(conversation, addMessage, userId);
+      addedMessages.push(addMessage);
+    }
     await conversation.save();
 
     await conversation.populate([
@@ -289,6 +306,11 @@ export const addMembers = async (req, res) => {
     currentMemberIds.forEach((id) => {
       io.to(id).emit("update-conversation", formatted);
     });
+
+    // Emit tin nhắn hệ thống realtime
+    for (const addMessage of addedMessages) {
+      emitNewMessage(io, conversation, addMessage);
+    }
 
     return res.status(200).json({ conversation: formatted });
   } catch (error) {
@@ -328,7 +350,19 @@ export const removeMember = async (req, res) => {
       return res.status(404).json({ message: "Thành viên không có trong nhóm" });
     }
 
+    const removedUserId = conversation.participants[memberIndex].userId;
     conversation.participants.splice(memberIndex, 1);
+
+    // Tạo tin nhắn hệ thống thông báo xóa thành viên
+    const removedUser = await User.findById(removedUserId).select("displayName");
+    const removeMessage = await Message.create({
+      conversationId: conversation._id,
+      senderId: userId,
+      content: `${req.user.displayName} đã xóa ${removedUser.displayName} khỏi nhóm`,
+      isSystem: true,
+    });
+
+    upDateConversationAfterMessage(conversation, removeMessage, userId);
     await conversation.save();
 
     await conversation.populate([
@@ -354,6 +388,9 @@ export const removeMember = async (req, res) => {
     currentMemberIds.forEach((id) => {
       io.to(id).emit("update-conversation", formatted);
     });
+
+    // Bắn realtime tin nhắn hệ thống
+    emitNewMessage(io, conversation, removeMessage);
 
     return res.status(200).json({ conversation: formatted });
   } catch (error) {

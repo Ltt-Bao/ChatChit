@@ -25,6 +25,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useFriendStore } from "@/stores/useFriendStore";
 import { useNavigate } from "react-router";
 
 import { useState } from "react";
@@ -37,6 +38,12 @@ export function NavUser({ user }: { user: User }) {
   const { signOut } = useAuthStore();
   const navigate = useNavigate();
   const [friendRequestOpen, setFriendRequestOpen] = useState(false);
+  const { hasNewRequest, setHasNewRequest } = useFriendStore();
+
+  const handleOpenNotifications = () => {
+    setFriendRequestOpen(true);
+    setHasNewRequest(false);
+  };
 
   const handleLogout = async () => {
     try {
@@ -102,9 +109,14 @@ export function NavUser({ user }: { user: User }) {
                   Tài khoản
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => setFriendRequestOpen(true)}
+                  onClick={handleOpenNotifications}
                 >
-                  <Bell className="text-muted-foreground dark:group-focus:text-accent-foreground!" />
+                  <div className="relative flex items-center justify-center">
+                    <Bell className="text-muted-foreground dark:group-focus:text-accent-foreground!" />
+                    {hasNewRequest && (
+                      <span className="absolute -top-0.5 -right-0.5 flex size-2.5 bg-red-500 rounded-full border-2 border-background"></span>
+                    )}
+                  </div>
                   Thông báo
                 </DropdownMenuItem>
                 <DropdownMenuItem

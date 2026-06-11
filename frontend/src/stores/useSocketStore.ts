@@ -3,6 +3,8 @@ import { io, type Socket } from "socket.io-client";
 import { useAuthStore } from "./useAuthStore";
 import type { SocketState } from "@/type/store";
 import { useChatStore } from "./useChatStore";
+import { useFriendStore } from "./useFriendStore";
+import { toast } from "sonner";
 
 const baseUrl = import.meta.env.VITE_SOCKET_URL;
 
@@ -101,6 +103,20 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         conversations: newConversations,
         activeConversationId: activeConversationId === conversationId ? null : activeConversationId
       });
+    });
+
+    // friend requests
+    socket.on("new-friend-request", () => {
+      useFriendStore.getState().setHasNewRequest(true);
+      // Optional: automatically refresh the list if needed
+      useFriendStore.getState().getAllFriendRequests();
+    });
+
+    socket.on("friend-request-accepted", ({ newFriend }) => {
+      useFriendStore.setState((state) => ({
+        friends: [...state.friends, newFriend]
+      }));
+      toast.success(`${newFriend.displayName} đã chấp nhận lời mời kết bạn!`);
     });
   },
   disconnectSocket: () => {

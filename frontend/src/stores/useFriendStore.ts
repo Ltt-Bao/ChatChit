@@ -7,6 +7,8 @@ export const useFriendStore = create<FriendState>((set) => ({
   loading: false,
   receivedList: [],
   sentList: [],
+  hasNewRequest: false,
+  setHasNewRequest: (hasNew) => set({ hasNewRequest: hasNew }),
   searchByUsername: async (username) => {
     try {
       set({ loading: true });
@@ -52,13 +54,18 @@ export const useFriendStore = create<FriendState>((set) => ({
   acceptRequest: async (requestId) => {
     try {
       set({ loading: true });
-      await friendService.acceptRequest(requestId);
+      const newFriend = await friendService.acceptRequest(requestId);
 
-      set((state) => ({
-        receivedList: state.receivedList.filter((r) => r._id !== requestId),
-      }));
+      if (newFriend) {
+        set((state) => ({
+          receivedList: state.receivedList.filter((r) => r._id !== requestId),
+          friends: [...state.friends, newFriend],
+        }));
+      }
     } catch (error) {
       console.error("Lỗi xảy ra khi acceptRequest", error);
+    } finally {
+      set({ loading: false });
     }
   },
   declineRequest: async (requestId) => {

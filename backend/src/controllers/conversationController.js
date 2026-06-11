@@ -350,7 +350,7 @@ export const removeMember = async (req, res) => {
     io.to(memberId).emit("removed-from-group", { conversationId });
 
     // Emit event to existing members to update conversation
-    const currentMemberIds = conversation.participants.map((p) => p.userId.toString());
+    const currentMemberIds = conversation.participants.map((p) => (p.userId?._id || p.userId).toString());
     currentMemberIds.forEach((id) => {
       io.to(id).emit("update-conversation", formatted);
     });
@@ -377,7 +377,7 @@ export const deleteConversation = async (req, res) => {
       return res.status(403).json({ message: "Chỉ trưởng nhóm mới có quyền xóa nhóm" });
     }
 
-    const currentMemberIds = conversation.participants.map((p) => p.userId.toString());
+    const currentMemberIds = conversation.participants.map((p) => (p.userId?._id || p.userId).toString());
 
     await Message.deleteMany({ conversationId: conversation._id });
     await Conversation.findByIdAndDelete(conversation._id);
@@ -479,7 +479,7 @@ export const leaveGroup = async (req, res) => {
     io.to(userId.toString()).emit("removed-from-group", { conversationId });
 
     // Gửi sự kiện update-conversation cho các thành viên còn lại
-    const remainingMemberIds = conversation.participants.map((p) => p.userId.toString());
+    const remainingMemberIds = conversation.participants.map((p) => (p.userId?._id || p.userId).toString());
     remainingMemberIds.forEach((id) => {
       io.to(id).emit("update-conversation", formatted);
     });

@@ -142,9 +142,9 @@ export const getMessage = async (req, res) => {
 
     let nextCursor = null;
     if (messages.length > Number(limit)) {
+      messages.pop();
       const nextMessage = messages[messages.length - 1];
       nextCursor = nextMessage.createdAt.toISOString();
-      messages.pop();
     }
     messages = messages.reverse();
     return res.status(200).json({ messages, nextCursor });

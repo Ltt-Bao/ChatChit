@@ -16,6 +16,8 @@ const DashboardPage = () => {
 
   // States cho Filter, Sort và Pagination
   const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   // Lưu cục sort gồm: Cột nào đang sort, và chiều nào (asc/desc)
   const [sortConfig, setSortConfig] = useState<{ key: "username" | "displayName", direction: "asc" | "desc" }>({
     key: "displayName", // Mặc định sort theo tên hiển thị
@@ -84,11 +86,19 @@ const DashboardPage = () => {
     const mail = u.email || "";
     const search = (searchTerm || "").toLowerCase();
 
-    return (
-      name.toLowerCase().includes(search) ||
+    // Lọc theo search term
+    const matchesSearch = name.toLowerCase().includes(search) ||
       uname.toLowerCase().includes(search) ||
-      mail.toLowerCase().includes(search)
-    );
+      mail.toLowerCase().includes(search);
+
+    // Lọc theo Role
+    const matchesRole = roleFilter === "all" || u.role === roleFilter;
+
+    // Lọc theo Status
+    const matchesStatus = statusFilter === "all" || 
+      (statusFilter === "active" ? u.isActive === true : u.isActive === false);
+
+    return matchesSearch && matchesRole && matchesStatus;
   });
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
@@ -140,6 +150,10 @@ const DashboardPage = () => {
         <DashboardToolbar
           searchTerm={searchTerm}
           onSearchChange={(val) => { setSearchTerm(val); setCurrentPage(1); }}
+          roleFilter={roleFilter}
+          onRoleFilterChange={(val) => { setRoleFilter(val); setCurrentPage(1); }}
+          statusFilter={statusFilter}
+          onStatusFilterChange={(val) => { setStatusFilter(val); setCurrentPage(1); }}
         />
 
         {/* Table */}

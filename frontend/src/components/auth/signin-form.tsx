@@ -7,7 +7,9 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuthStore } from "@/stores/useAuthStore"
-import { useNavigate } from "react-router"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { useEffect } from "react"
+import { toast } from "sonner"
 
 const signInSchema = z.object({
   username: z.string().min(3, "Tên đăng nhập phải có ít nhất 3 kí tự"),
@@ -23,6 +25,15 @@ export function SigninForm({
 
   const { signIn } = useAuthStore();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("verified") === "true") {
+      toast.success("Tài khoản đã xác nhận thành công. Vui lòng đăng nhập!");
+      searchParams.delete("verified");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<signInFormValues>({
     resolver: zodResolver(signInSchema)
   });

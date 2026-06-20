@@ -60,6 +60,9 @@ export const useAuthStore = create<authState>()(
                 if (msg === "Tài khoản của bạn đã bị khóa, vui lòng liên hệ admin") {
                     toast.error(msg);
                     return;
+                } else if (msg === "Tài khoản chưa được xác nhận, vui lòng kiểm tra email") {
+                    toast.error(msg);
+                    return;
                 } else {
                     toast.error("Đăng nhập không thành công");
                 }

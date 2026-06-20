@@ -19,7 +19,8 @@ const initAdmin = async () => {
                 email: "admin@hihi.hihi",
                 displayName: "Admin",
                 role: "admin",
-                isActive: true
+                isActive: true,
+                isVerified: true
             });
             console.log("Tạo admin thành công");
         }

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import crypto from 'crypto';
 import Session from '../models/Session.js';
+import { sendVerificationEmail } from '../utils/emailService.js';
 
 const ACCESS_TOKEN_TTL = '15m'; // dưới 15m
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 *1000 // 14 ngày
@@ -25,14 +26,20 @@ export const signUp = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10); // số 10 là salt rounds, càng cao thì càng an toàn nhưng cũng tốn thời gian hơn
 
         // tạo user mới
+        const verificationToken = crypto.randomBytes(32).toString("hex");
         await User.create({
             username,
             hashedPassword,
             email,
             displayName: `${firstname} ${lastname}`,
             role: "user",
-            isActive: true
-        })
+            isActive: true,
+            isVerified: false,
+            verificationToken
+        });
+
+        // gửi email xác nhận
+        await sendVerificationEmail(email, verificationToken);
 
         // return
         return res.sendStatus(204);
@@ -62,6 +69,13 @@ export const signIn = async (req, res) => {
         if(!user.isActive){
             return res.status(403).json({
                 message: "Tài khoản của bạn đã bị khóa, vui lòng liên hệ admin"
+            })
+        }
+
+        // kiểm tra tài khoản đã xác nhận email chưa
+        if (!user.isVerified) {
+            return res.status(401).json({
+                message: "Tài khoản chưa được xác nhận, vui lòng kiểm tra email"
             })
         }
         //kiểm tra passowrd
@@ -152,5 +166,26 @@ export const refreshToken = async (req, res) => {
     } catch (error) {
         console.error("Lỗi khi gọi refreshToken", error);
         return res.status(500).json({message: "Lỗi hệ thống"});
+    }
+}
+
+export const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const user = await User.findOne({ verificationToken: token });
+
+        if (!user) {
+            return res.status(400).json({ message: "Token xác nhận không hợp lệ." });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        await user.save();
+
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        return res.redirect(`${frontendUrl}/signin?verified=true`);
+    } catch (error) {
+        console.error("Lỗi khi xác nhận email", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
     }
 }

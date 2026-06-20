@@ -1,16 +1,31 @@
 import { useFriendStore } from "@/stores/useFriendStore";
 import { DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
-import { MessageCircleMore, Users } from "lucide-react";
+import { MessageCircleMore, Users, MoreHorizontal, UserMinus } from "lucide-react";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Card } from "../ui/card";
 import UserAvatar from "../chat/UserAvatar";
 import { useChatStore } from "@/stores/useChatStore";
 
 const FriendListModal = () => {
-  const { friends } = useFriendStore();
+  const { friends, unfriend } = useFriendStore();
   const { createConversation } = useChatStore();
 
   const handleAddConversation = async (friendId: string) => {
     await createConversation("direct", "", [friendId]);
+  };
+
+  const handleUnfriend = async (e: React.MouseEvent, friendId: string) => {
+    e.stopPropagation();
+    if (!window.confirm("Bạn có chắc chắn muốn hủy kết bạn với người này?")) return;
+    
+    await unfriend(friendId);
+    toast.success("Đã hủy kết bạn");
   };
 
   return (
@@ -53,6 +68,23 @@ const FriendListModal = () => {
                     @{friends.username}
                   </span>
                 </div>
+                {/* action */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                    <div className="p-1 hover:bg-muted rounded-md opacity-0 group-hover/friendCard:opacity-100 transition-opacity">
+                      <MoreHorizontal className="size-4 text-muted-foreground hover:size-5 transition-smooth" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={(e) => handleUnfriend(e, friends._id)}
+                      className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                    >
+                      <UserMinus className="size-4 mr-2" />
+                      Hủy kết bạn
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </Card>
           ))}

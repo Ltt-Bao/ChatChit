@@ -1,10 +1,10 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { adminService } from "@/services/adminService";
 import Logout from "@/components/auth/Logout";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { UserCog } from "lucide-react"; 
-import type { User} from "@/type/user";
+import { UserCog } from "lucide-react";
+import type { User } from "@/type/user";
 import DashboardToolbar from "@/components/admin/DashboardToolbar";
 import UserTable from "@/components/admin/UserTable";
 import Pagination from "@/components/admin/Pagination";
@@ -29,7 +29,7 @@ const DashboardPage = () => {
     setSortConfig((prev) => ({
       key,
       // Nếu đang click vào cột hiện tại mà là asc thì đổi thành desc, còn cột khác thì mặc định là asc
-      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc", 
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
     }));
   };
   // Gọi API lấy dữ liệu
@@ -64,10 +64,9 @@ const DashboardPage = () => {
     try {
       const data = await adminService.updateStatus(userId);
       toast.success(data.message);
-      
-      // Cập nhật lại UI ngay lập tức
-      setUsers((prevUsers) => 
-        prevUsers.map((u) => 
+
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
           u._id === userId ? { ...u, isActive: !u.isActive } : u
         )
       );
@@ -104,7 +103,7 @@ const DashboardPage = () => {
       valA = (a.displayName || a.username || "").toLowerCase();
       valB = (b.displayName || b.username || "").toLowerCase();
     }
-    
+
     // Đảo chiều tùy theo direction
     if (sortConfig.direction === "asc") return valA.localeCompare(valB);
     return valB.localeCompare(valA);
@@ -119,7 +118,7 @@ const DashboardPage = () => {
   return (
     <div className="min-h-screen bg-muted/30 p-8">
       <div className="max-w-6xl mx-auto space-y-6">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -138,27 +137,27 @@ const DashboardPage = () => {
         </div>
 
         {/* Toolbar */}
-        <DashboardToolbar 
-          searchTerm={searchTerm} 
-          onSearchChange={(val) => { setSearchTerm(val); setCurrentPage(1); }} 
+        <DashboardToolbar
+          searchTerm={searchTerm}
+          onSearchChange={(val) => { setSearchTerm(val); setCurrentPage(1); }}
         />
 
         {/* Table */}
-        <UserTable 
-          loading={loading} 
-          users={currentUsers} 
-          currentUser={currentUser} 
+        <UserTable
+          loading={loading}
+          users={currentUsers}
+          currentUser={currentUser}
           onToggleStatus={handleToggleStatus}
           sortConfig={sortConfig}
-          onSort={handleSort} 
+          onSort={handleSort}
         />
 
         {/* Pagination */}
-        <Pagination 
-          currentPage={currentPage} 
-          totalPages={totalPages} 
-          onPageChange={setCurrentPage} 
-          loading={loading} 
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          loading={loading}
         />
 
       </div>

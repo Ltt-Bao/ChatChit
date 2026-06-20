@@ -24,14 +24,6 @@ const PrivacySettings = () => (
       <div className="space-y-4">
         <Button
           variant="outline"
-          className="w-full justify-start glass-light border-border/30 hover:text-warning"
-        >
-          <Shield className="h-4 w-4 mr-2" />
-          Đổi mật khẩu
-        </Button>
-
-        <Button
-          variant="outline"
           className="w-full justify-start glass-light border-border/30 hover:text-info"
         >
           <Bell className="h-4 w-4 mr-2" />
